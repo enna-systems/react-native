@@ -46,20 +46,30 @@ import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.views.common.ContextUtils;
 import com.facebook.react.views.view.ReactViewGroup;
 import java.util.ArrayList;
+import androidx.core.view.WindowInsetsCompat;
+import android.view.WindowInsetsController;
 
 /**
- * ReactModalHostView is a view that sits in the view hierarchy representing a Modal view.
+ * ReactModalHostView is a view that sits in the view hierarchy representing a
+ * Modal view.
  *
- * <p>It does a number of things:
+ * <p>
+ * It does a number of things:
  *
  * <ol>
- *   <li>It creates a Dialog. We use this Dialog to actually display the Modal in the window.
- *   <li>It creates a DialogRootViewGroup. This view is the view that is displayed by the Dialog. To
- *       display a view within a Dialog, that view must have its parent set to the window the Dialog
- *       creates. Because of this, we can not use the ReactModalHostView since it sits in the normal
- *       React view hierarchy. We do however want all of the layout magic to happen as if the
- *       DialogRootViewGroup were part of the hierarchy. Therefore, we forward all view changes
- *       around addition and removal of views to the DialogRootViewGroup.
+ * <li>It creates a Dialog. We use this Dialog to actually display the Modal in
+ * the window.
+ * <li>It creates a DialogRootViewGroup. This view is the view that is displayed
+ * by the Dialog. To
+ * display a view within a Dialog, that view must have its parent set to the
+ * window the Dialog
+ * creates. Because of this, we can not use the ReactModalHostView since it sits
+ * in the normal
+ * React view hierarchy. We do however want all of the layout magic to happen as
+ * if the
+ * DialogRootViewGroup were part of the hierarchy. Therefore, we forward all
+ * view changes
+ * around addition and removal of views to the DialogRootViewGroup.
  * </ol>
  */
 public class ReactModalHostView extends ViewGroup
@@ -68,7 +78,8 @@ public class ReactModalHostView extends ViewGroup
   private static final String TAG = "ReactModalHost";
 
   // This listener is called when the user presses KeyEvent.KEYCODE_BACK
-  // An event is then passed to JS which can either close or not close the Modal by setting the
+  // An event is then passed to JS which can either close or not close the Modal
+  // by setting the
   // visible property
   public interface OnRequestCloseListener {
     void onRequestClose(DialogInterface dialog);
@@ -80,9 +91,12 @@ public class ReactModalHostView extends ViewGroup
   private boolean mStatusBarTranslucent;
   private String mAnimationType;
   private boolean mHardwareAccelerated;
-  // Set this flag to true if changing a particular property on the view requires a new Dialog to
-  // be created.  For instance, animation does since it affects Dialog creation through the theme
-  // but transparency does not since we can access the window to update the property.
+  // Set this flag to true if changing a particular property on the view requires
+  // a new Dialog to
+  // be created. For instance, animation does since it affects Dialog creation
+  // through the theme
+  // but transparency does not since we can access the window to update the
+  // property.
   private boolean mPropertyRequiresNewDialog;
   private @Nullable DialogInterface.OnShowListener mOnShowListener;
   private @Nullable OnRequestCloseListener mOnRequestCloseListener;
@@ -147,13 +161,15 @@ public class ReactModalHostView extends ViewGroup
 
   @Override
   public void addChildrenForAccessibility(ArrayList<View> outChildren) {
-    // Explicitly override this to prevent accessibility events being passed down to children
+    // Explicitly override this to prevent accessibility events being passed down to
+    // children
     // Those will be handled by the mHostView which lives in the dialog
   }
 
   @Override
   public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-    // Explicitly override this to prevent accessibility events being passed down to children
+    // Explicitly override this to prevent accessibility events being passed down to
+    // children
     // Those will be handled by the mHostView which lives in the dialog
     return false;
   }
@@ -168,8 +184,7 @@ public class ReactModalHostView extends ViewGroup
 
     if (mDialog != null) {
       if (mDialog.isShowing()) {
-        Activity dialogContext =
-            ContextUtils.findContextOfType(mDialog.getContext(), Activity.class);
+        Activity dialogContext = ContextUtils.findContextOfType(mDialog.getContext(), Activity.class);
         if (dialogContext == null || !dialogContext.isFinishing()) {
           mDialog.dismiss();
         }
@@ -177,7 +192,8 @@ public class ReactModalHostView extends ViewGroup
       mDialog = null;
 
       // We need to remove the mHostView from the parent
-      // It is possible we are dismissing this dialog and reattaching the hostView to another
+      // It is possible we are dismissing this dialog and reattaching the hostView to
+      // another
       ViewGroup parent = (ViewGroup) mHostView.getParent();
       parent.removeViewAt(0);
     }
@@ -241,15 +257,19 @@ public class ReactModalHostView extends ViewGroup
   }
 
   /**
-   * showOrUpdate will display the Dialog. It is called by the manager once all properties are set
-   * because we need to know all of them before creating the Dialog. It is also smart during updates
-   * if the changed properties can be applied directly to the Dialog or require the recreation of a
+   * showOrUpdate will display the Dialog. It is called by the manager once all
+   * properties are set
+   * because we need to know all of them before creating the Dialog. It is also
+   * smart during updates
+   * if the changed properties can be applied directly to the Dialog or require
+   * the recreation of a
    * new Dialog.
    */
   protected void showOrUpdate() {
     UiThreadUtil.assertOnUiThread();
 
-    // If the existing Dialog is currently up, we may need to redraw it or we may be able to update
+    // If the existing Dialog is currently up, we may need to redraw it or we may be
+    // able to update
     // the property without having to recreate the dialog
     if (mDialog != null) {
       Context dialogContext = ContextUtils.findContextOfType(mDialog.getContext(), Activity.class);
@@ -298,9 +318,12 @@ public class ReactModalHostView extends ViewGroup
           @Override
           public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
             if (event.getAction() == KeyEvent.ACTION_UP) {
-              // We need to stop the BACK button and ESCAPE key from closing the dialog by default
-              // so we capture that event and instead inform JS so that it can make the decision as
-              // to whether or not to allow the back/escape key to close the dialog. If it chooses
+              // We need to stop the BACK button and ESCAPE key from closing the dialog by
+              // default
+              // so we capture that event and instead inform JS so that it can make the
+              // decision as
+              // to whether or not to allow the back/escape key to close the dialog. If it
+              // chooses
               // to, it can just set visible to false on the Modal and the Modal will go away
               if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
                 Assertions.assertNotNull(
@@ -310,7 +333,8 @@ public class ReactModalHostView extends ViewGroup
                 return true;
               } else {
                 // We redirect the rest of the key events to the current activity, since the
-                // activity expects to receive those events and react to them, ie. in the case of
+                // activity expects to receive those events and react to them, ie. in the case
+                // of
                 // the dev menu
                 Activity currentActivity = ((ReactContext) getContext()).getCurrentActivity();
                 if (currentActivity != null) {
@@ -330,9 +354,37 @@ public class ReactModalHostView extends ViewGroup
       mDialog.show();
       if (context instanceof Activity) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
-          int appearance =
-              ((Activity) context).getWindow().getInsetsController().getSystemBarsAppearance();
-          mDialog.getWindow().getInsetsController().setSystemBarsAppearance(appearance, appearance);
+          Window window = ((Activity) context).getWindow();
+          WindowInsetsController windowInsetsController = window.getInsetsController();
+          WindowInsetsController dialogWindowInsetsController = mDialog.getWindow().getInsetsController();
+
+          int appearance = windowInsetsController.getSystemBarsAppearance();
+          dialogWindowInsetsController.setSystemBarsAppearance(appearance, appearance);
+          dialogWindowInsetsController.setSystemBarsBehavior(windowInsetsController.getSystemBarsBehavior());
+
+          boolean statusBarsIsVisible = window.getDecorView().getRootWindowInsets()
+              .isVisible(WindowInsetsCompat.Type.statusBars());
+          if (statusBarsIsVisible) {
+            dialogWindowInsetsController.show(WindowInsetsCompat.Type.statusBars());
+          } else {
+            dialogWindowInsetsController.hide(WindowInsetsCompat.Type.statusBars());
+          }
+
+          boolean navigationBarsIsVisible = window.getDecorView().getRootWindowInsets()
+              .isVisible(WindowInsetsCompat.Type.navigationBars());
+          if (navigationBarsIsVisible) {
+            dialogWindowInsetsController.show(WindowInsetsCompat.Type.navigationBars());
+          } else {
+            dialogWindowInsetsController.hide(WindowInsetsCompat.Type.navigationBars());
+          }
+
+          boolean captionBarIsVisible = window.getDecorView().getRootWindowInsets()
+              .isVisible(WindowInsetsCompat.Type.captionBar());
+          if (captionBarIsVisible) {
+            dialogWindowInsetsController.show(WindowInsetsCompat.Type.captionBar());
+          } else {
+            dialogWindowInsetsController.hide(WindowInsetsCompat.Type.captionBar());
+          }
         } else {
           mDialog
               .getWindow()
@@ -346,9 +398,12 @@ public class ReactModalHostView extends ViewGroup
   }
 
   /**
-   * Returns the view that will be the root view of the dialog. We are wrapping this in a
-   * FrameLayout because this is the system's way of notifying us that the dialog size has changed.
-   * This has the pleasant side-effect of us not having to preface all Modals with "top:
+   * Returns the view that will be the root view of the dialog. We are wrapping
+   * this in a
+   * FrameLayout because this is the system's way of notifying us that the dialog
+   * size has changed.
+   * This has the pleasant side-effect of us not having to preface all Modals with
+   * "top:
    * statusBarHeight", since that margin will be included in the FrameLayout.
    */
   private View getContentView() {
@@ -363,8 +418,10 @@ public class ReactModalHostView extends ViewGroup
   }
 
   /**
-   * updateProperties will update the properties that do not require us to recreate the dialog
-   * Properties that do require us to recreate the dialog should set mPropertyRequiresNewDialog to
+   * updateProperties will update the properties that do not require us to
+   * recreate the dialog
+   * Properties that do require us to recreate the dialog should set
+   * mPropertyRequiresNewDialog to
    * true when the property changes
    */
   private void updateProperties() {
@@ -374,7 +431,8 @@ public class ReactModalHostView extends ViewGroup
 
     Window window = mDialog.getWindow();
     if (currentActivity == null || currentActivity.isFinishing() || !window.isActive()) {
-      // If the activity has disappeared, then we shouldn't update the window associated to the
+      // If the activity has disappeared, then we shouldn't update the window
+      // associated to the
       // Dialog.
       return;
     }
@@ -404,15 +462,23 @@ public class ReactModalHostView extends ViewGroup
   }
 
   /**
-   * DialogRootViewGroup is the ViewGroup which contains all the children of a Modal. It gets all
-   * child information forwarded from ReactModalHostView and uses that to create children. It is
-   * also responsible for acting as a RootView and handling touch events. It does this the same way
+   * DialogRootViewGroup is the ViewGroup which contains all the children of a
+   * Modal. It gets all
+   * child information forwarded from ReactModalHostView and uses that to create
+   * children. It is
+   * also responsible for acting as a RootView and handling touch events. It does
+   * this the same way
    * as ReactRootView.
    *
-   * <p>To get layout to work properly, we need to layout all the elements within the Modal as if
-   * they can fill the entire window. To do that, we need to explicitly set the styleWidth and
-   * styleHeight on the LayoutShadowNode to be the window size. This is done through the
-   * UIManagerModule, and will then cause the children to layout as if they can fill the window.
+   * <p>
+   * To get layout to work properly, we need to layout all the elements within the
+   * Modal as if
+   * they can fill the entire window. To do that, we need to explicitly set the
+   * styleWidth and
+   * styleHeight on the LayoutShadowNode to be the window size. This is done
+   * through the
+   * UIManagerModule, and will then cause the children to layout as if they can
+   * fill the window.
    */
   static class DialogRootViewGroup extends ReactViewGroup
       implements RootView, FabricViewStateManager.HasFabricViewStateManager {
@@ -424,7 +490,8 @@ public class ReactModalHostView extends ViewGroup
     private final FabricViewStateManager mFabricViewStateManager = new FabricViewStateManager();
 
     private final JSTouchDispatcher mJSTouchDispatcher = new JSTouchDispatcher(this);
-    @Nullable private JSPointerDispatcher mJSPointerDispatcher;
+    @Nullable
+    private JSPointerDispatcher mJSPointerDispatcher;
 
     public DialogRootViewGroup(Context context) {
       super(context);
@@ -459,8 +526,7 @@ public class ReactModalHostView extends ViewGroup
               new GuardedRunnable(reactContext) {
                 @Override
                 public void runGuarded() {
-                  UIManagerModule uiManager =
-                      (getReactContext()).getNativeModule(UIManagerModule.class);
+                  UIManagerModule uiManager = (getReactContext()).getNativeModule(UIManagerModule.class);
 
                   if (uiManager == null) {
                     return;
@@ -480,17 +546,16 @@ public class ReactModalHostView extends ViewGroup
       final float realWidth = PixelUtil.toDIPFromPixel(width);
       final float realHeight = PixelUtil.toDIPFromPixel(height);
 
-      // Check incoming state values. If they're already the correct value, return early to prevent
+      // Check incoming state values. If they're already the correct value, return
+      // early to prevent
       // infinite UpdateState/SetState loop.
       ReadableMap currentState = getFabricViewStateManager().getStateData();
       if (currentState != null) {
         float delta = (float) 0.9;
-        float stateScreenHeight =
-            currentState.hasKey("screenHeight")
-                ? (float) currentState.getDouble("screenHeight")
-                : 0;
-        float stateScreenWidth =
-            currentState.hasKey("screenWidth") ? (float) currentState.getDouble("screenWidth") : 0;
+        float stateScreenHeight = currentState.hasKey("screenHeight")
+            ? (float) currentState.getDouble("screenHeight")
+            : 0;
+        float stateScreenWidth = currentState.hasKey("screenWidth") ? (float) currentState.getDouble("screenWidth") : 0;
 
         if (Math.abs(stateScreenWidth - realWidth) < delta
             && Math.abs(stateScreenHeight - realHeight) < delta) {
@@ -543,7 +608,8 @@ public class ReactModalHostView extends ViewGroup
         mJSPointerDispatcher.handleMotionEvent(event, mEventDispatcher);
       }
       super.onTouchEvent(event);
-      // In case when there is no children interested in handling touch event, we return true from
+      // In case when there is no children interested in handling touch event, we
+      // return true from
       // the root view in order to receive subsequent events related to that gesture
       return true;
     }
